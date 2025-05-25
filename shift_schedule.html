@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Админка - Управление сменами</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <style>
+    body {
+  background-image: url(/image/1.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+.navbar-brand img {
+    border-radius: 10px;
+}
+.fc-daygrid-day-number {
+  color: white !important;
+}
+.fc-col-header-cell-cushion {
+  color: white !important; /* нужный цвет для дней недели */
+}
+h2 {
+    color: white;
+}
+
+  </style>
+</head>
+<body class="bg-light p-4">
+
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html"><img src="image/2023-04-14.webp" alt="" width="70"></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a href="admin.html" class="btn btn-light border-3 me-3" role="button">Můj účet</a>
+          </li>
+          <li class="nav-item">
+            <a href="shift_schedule.html" class="btn btn-light border-3 me-3" role="button">Moje směny</a>
+          </li>
+          <li class="nav-item">
+            <a href="my_team.html" class="btn btn-light border-3"  role="button">Můj tým</a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <button id="logoutBtn" class="btn btn-danger" type="button">Выйти</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+<div class="container">
+  <h2>Управление сменами</h2>
+  <div id="calendar"></div>
+</div>
+
+<!-- Модальное окно для просмотра смен выбранного дня -->
+<div class="modal fade" id="dayShiftsModal" tabindex="-1" aria-labelledby="dayShiftsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dayShiftsModalLabel">Смены на <span id="modalDateDisplay"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body" id="dayShiftsList">
+        <!-- Список смен с кнопками удаления -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+  const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+  const dayShiftsModal = new bootstrap.Modal(document.getElementById('dayShiftsModal'));
+
+  // Собираем все смены всех сотрудников в формат для календаря
+  let allShifts = [];
+  employees.forEach(emp => {
+    (emp.shifts || []).forEach(shift => {
+      allShifts.push({
+        id: emp.id + '_' + shift.date,
+        employeeId: emp.id,
+        employeeName: emp.name,
+        title: `${emp.name}: ${shift.title}`,
+        date: shift.date
+      });
+    });
+  });
+
+  const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    height: 700,
+    events: allShifts.map(s => ({ title: s.title, start: s.date, id: s.id })),
+
+    dateClick(info) {
+      showShiftsForDay(info.dateStr);
+    }
+  });
+
+  
+  calendar.render();
+
+  function showShiftsForDay(dateStr) {
+    document.getElementById('modalDateDisplay').textContent = dateStr;
+
+    // Находим смены на выбранную дату
+    const shiftsForDay = allShifts.filter(s => s.date === dateStr);
+    const container = document.getElementById('dayShiftsList');
+
+    if (shiftsForDay.length === 0) {
+      container.innerHTML = '<p>Смены не назначены.</p>';
+      dayShiftsModal.show();
+      return;
+    }
+
+    container.innerHTML = '<ul class="list-group">' + shiftsForDay.map(s => `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>${s.employeeName}: ${s.title.replace(`${s.employeeName}: `, '')}</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteShift('${s.employeeId}', '${s.date}')">Удалить</button>
+      </li>
+    `).join('') + '</ul>';
+
+    dayShiftsModal.show();
+  }
+
+  function deleteShift(employeeId, date) {
+    if (!confirm('Удалить эту смену?')) return;
+
+    const empIndex = employees.findIndex(e => e.id === employeeId);
+    if (empIndex === -1) return;
+
+    const emp = employees[empIndex];
+    emp.shifts = (emp.shifts || []).filter(s => s.date !== date);
+    employees[empIndex] = emp;
+
+    localStorage.setItem('employees', JSON.stringify(employees));
+
+    // Обновляем allShifts и календарь
+    allShifts = [];
+    employees.forEach(emp => {
+      (emp.shifts || []).forEach(shift => {
+        allShifts.push({
+          id: emp.id + '_' + shift.date,
+          employeeId: emp.id,
+          employeeName: emp.name,
+          title: `${emp.name}: ${shift.title}`,
+          date: shift.date
+        });
+      });
+    });
+
+    calendar.removeAllEvents();
+    calendar.addEventSource(allShifts.map(s => ({ title: s.title, start: s.date, id: s.id })));
+
+    dayShiftsModal.hide();
+  }
+</script>
+</body>
+</html>
+

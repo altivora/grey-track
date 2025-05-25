@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Дэшборд сотрудника</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+  <style>
+        body {
+  background-image: url(/image/1.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+.navbar-brand img {
+    border-radius: 10px;
+}
+.card {
+    background: none;
+}
+.fc-daygrid-day-number {
+  color: white !important;
+}
+.fc-col-header-cell-cushion {
+  color: white !important; /* нужный цвет для дней недели */
+}
+h2, h4, p {
+    color: white;
+}
+  </style>
+</head>
+<body class="bg-light p-4">
+
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="index.html"><img src="image/2023-04-14.webp" alt="" width="70"></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a href="dashboard.html" class="btn btn-light border-3 me-3" role="button">Můj účet</a>
+              </li>
+
+            </ul>
+    
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <button id="logoutBtn" class="btn btn-danger" type="button">Выйти</button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Личный кабинет</h2>
+    <button id="logoutBtn" class="btn btn-outline-danger">Выйти</button>
+  </div>
+
+  <div class="card p-3">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <img id="empPhoto" src="https://via.placeholder.com/150" alt="Фото сотрудника" class="img-thumbnail">
+      </div>
+      <div class="col-md-9">
+        <h4 id="empName">Имя сотрудника</h4>
+        <p><strong>Должность:</strong> <span id="empPosition"></span></p>
+        <p><strong>Отработанные часы:</strong> <span id="empHours"></span></p>
+        <h4 class="mt-4">Мои смены</h4>
+        <div id="calendar"></div>
+        <button id="addShiftBtn" class="btn btn-primary mt-2">Записаться на смену сегодня (8 ч)</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="message" class="alert alert-success mt-4 d-none"></div>
+</div>
+
+<!-- Модальное окно для добавления смены -->
+<div class="modal fade" id="hoursModal" tabindex="-1" aria-labelledby="hoursModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hoursModalLabel">Введите количество часов</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body">
+        <p id="modalDateText"></p>
+        <input type="number" id="inputHours" class="form-control" min="1" max="24" placeholder="Часы работы (1-24)">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+        <button type="button" class="btn btn-primary" id="saveHoursBtn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно для просмотра смен выбранного дня -->
+<div class="modal fade" id="viewShiftsModal" tabindex="-1" aria-labelledby="viewShiftsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewShiftsModalLabel">Смены на <span id="viewShiftDate"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <div class="modal-body" id="shiftsList">
+        <!-- Здесь список смен -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+  const userId = localStorage.getItem('user');
+  const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+  const emp = employees.find(e => e.id === userId);
+
+  if (!emp) {
+    alert('Сотрудник не найден');
+    window.location.href = 'authorization.html';
+  }
+
+  emp.shifts = emp.shifts || [];
+  let selectedDate = null;
+
+  function updateEmployeeData() {
+    document.getElementById('empName').textContent = emp.name;
+    document.getElementById('empPosition').textContent = emp.position;
+    document.getElementById('empHours').textContent = emp.hours || 0;
+    document.getElementById('empPhoto').src = emp.photo || 'https://via.placeholder.com/150';
+
+    const updated = employees.map(e => e.id === emp.id ? emp : e);
+    localStorage.setItem('employees', JSON.stringify(updated));
+  }
+
+  updateEmployeeData();
+
+  const hoursModal = new bootstrap.Modal(document.getElementById('hoursModal'));
+  const viewShiftsModal = new bootstrap.Modal(document.getElementById('viewShiftsModal'));
+
+  const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    height: 600,
+    selectable: true,
+
+    // При выборе диапазона дат показываем модалку для добавления смены
+    select(info) {
+      selectedDate = info.startStr;
+      document.getElementById('modalDateText').textContent = `Вы выбрали: ${selectedDate}`;
+      document.getElementById('inputHours').value = '';
+      hoursModal.show();
+    },
+
+    // При клике на день — показать смены этого дня
+    dateClick(info) {
+      const dayShifts = emp.shifts.filter(s => s.date === info.dateStr);
+      const shiftsList = document.getElementById('shiftsList');
+      document.getElementById('viewShiftDate').textContent = info.dateStr;
+
+      if (dayShifts.length === 0) {
+        shiftsList.innerHTML = '<p>Смены не назначены.</p>';
+      } else {
+        shiftsList.innerHTML = '<ul class="list-group">' +
+          dayShifts.map(s => `<li class="list-group-item">${s.title}</li>`).join('') +
+          '</ul>';
+      }
+      viewShiftsModal.show();
+    },
+
+    events: emp.shifts.map(shift => ({
+      title: shift.title,
+      start: shift.date
+    }))
+  });
+
+  calendar.render();
+
+  document.getElementById('saveHoursBtn').addEventListener('click', () => {
+    const hours = parseInt(document.getElementById('inputHours').value, 10);
+    if (!hours || hours <= 0 || hours > 24) {
+      alert('Введите корректное количество часов (1-24)');
+      return;
+    }
+    emp.shifts.push({ date: selectedDate, title: `Смена (${hours} ч)` });
+    emp.hours = (Number(emp.hours) || 0) + hours;
+    updateEmployeeData();
+
+    calendar.addEvent({
+      title: `Смена (${hours} ч)`,
+      start: selectedDate
+    });
+
+    hoursModal.hide();
+    showMessage('Смена успешно добавлена!');
+  });
+
+  document.getElementById('addShiftBtn').addEventListener('click', () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    emp.shifts.push({ date: todayStr, title: 'Смена (8 ч)' });
+    emp.hours = (Number(emp.hours) || 0) + 8;
+    updateEmployeeData();
+
+    calendar.addEvent({ title: 'Смена (8 ч)', start: todayStr });
+    showMessage('Смена на сегодня успешно добавлена!');
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('user');
+    window.location.href = 'authorization.html';
+  });
+
+  function showMessage(text) {
+    const msg = document.getElementById('message');
+    msg.textContent = text;
+    msg.classList.remove('d-none');
+    setTimeout(() => {
+      msg.classList.add('d-none');
+    }, 3000);
+  }
+</script>
+</body>
+</html>

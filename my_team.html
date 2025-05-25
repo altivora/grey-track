@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <style>
+        body {
+  background-image: url(image/1.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+    </style>
+    <title>My team</title>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html"><img src="image/2023-04-14.webp" alt="" width="70"></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a href="admin.html" class="btn btn-light border-3 me-3" role="button">Můj účet</a>
+          </li>
+          <li class="nav-item">
+            <a href="shift_schedule.html" class="btn btn-light border-3 me-3" role="button">Moje směny</a>
+          </li>
+          <li class="nav-item">
+            <a href="my_team.html" class="btn btn-light border-3"  role="button">Můj tým</a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <button id="logoutBtn" class="btn btn-danger" type="button">Выйти</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+<script>
+        const user = localStorage.getItem('user');
+          const role = localStorage.getItem('role');
+
+          if (!user || !role) {
+            // Если пользователь не вошёл — отправить на авторизацию
+            window.location.href = 'authorization.html';
+          }
+</script>
+
+
+
+
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Job title</th>
+              <th scope="col">Mobile</th>
+              <th scope="col">Mail</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>Lukas</td>
+              <td>Vedouci</td>
+              <td>+420259854789</td>
+              <td>gjfdgfd@gmail.com</td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>Eva</td>
+              <td>Manager</td>
+              <td>+420258965874</td>
+              <td>gjfdgfd@gmail.com</td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td>Karel</td>
+              <td>Manager</td>
+              <td>+420258965874</td>
+              <td>gjfdgfd@gmail.com</td>
+            </tr>
+           
+          </tbody>
+      </table>
+
+      <script>
+
+  
+
+        document.getElementById('accountLink')?.addEventListener('click', function (e) {
+          e.preventDefault();
+          const user = localStorage.getItem('user');
+          const role = localStorage.getItem('role');
+      
+          if (!user || !role) {
+            alert('Сначала войдите в систему');
+            window.location.href = 'authorization.html';
+            return;
+          }
+      
+          if (role === 'admin') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
+        });
+      </script>
+      
+
+
+
+
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+</body>
+</html>
