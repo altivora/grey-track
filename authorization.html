@@ -3,62 +3,79 @@
 <head>
   <meta charset="UTF-8" />
   <title>Форма входа</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
     body {
-  background-image: url(image/1.png);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
+      background-image: url(image/1.png);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+    }
+    .card {
+      width: 320px;
+      max-width: 90vw; /* чтобы на очень узких экранах не вылазило */
+      padding: 1.5rem;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      border-radius: 12px;
+    }
+    h3 {
+      font-size: 1.6rem;
+    }
+    @media (max-width: 400px) {
+      h3 {
+        font-size: 1.3rem;
+      }
+      body {
+        padding: 1rem;
+      }
+    }
   </style>
 </head>
 <body class="bg-light d-flex justify-content-center align-items-center vh-100">
 
-  <div class="card p-4 shadow" style="width: 320px;">
+  <div class="card">
     <h3 class="mb-4 text-center">Authorization admin</h3>
     <form id="loginForm">
       <div class="mb-3">
         <label for="username" class="form-label">Login</label>
-        <input type="text" class="form-control" id="username" placeholder="Write you login" required />
+        <input type="text" class="form-control" id="username" placeholder="Write your login" required />
       </div>
       <div class="mb-4">
         <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" placeholder="Write you password" required />
+        <input type="password" class="form-control" id="password" placeholder="Write your password" required />
       </div>
       <button type="submit" class="btn btn-primary w-100">Click</button>
     </form>
   </div>
 
   <script>
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value.trim();
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
 
-  // Вход как админ
-  if (username === 'admin' && password === '12345') {
-    localStorage.setItem('user', 'admin');
-    localStorage.setItem('role', 'admin'); // ← добавляем роль
-    window.location.href = 'admin.html';
-    return;
-  }
+      // Вход как админ
+      if (username === 'admin' && password === '12345') {
+        localStorage.setItem('user', 'admin');
+        localStorage.setItem('role', 'admin'); // ← добавляем роль
+        window.location.href = 'admin.html';
+        return;
+      }
 
-  // Вход как сотрудник
-  const employees = JSON.parse(localStorage.getItem('employees') || '[]');
-  const user = employees.find(emp => emp.login === username && emp.password === password);
+      // Вход как сотрудник
+      const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+      const user = employees.find(emp => emp.login === username && emp.password === password);
 
-  if (user) {
-    localStorage.setItem('user', user.id);
-    localStorage.setItem('role', 'employee'); // ← добавляем роль
-    window.location.href = 'dashboard.html';
-  } else {
-    alert('Неверный логин или пароль');
-  }
-});
-
+      if (user) {
+        localStorage.setItem('user', user.id);
+        localStorage.setItem('role', 'employee'); // ← добавляем роль
+        window.location.href = 'dashboard.html';
+      } else {
+        alert('Неверный логин или пароль');
+      }
+    });
   </script>
-  
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
