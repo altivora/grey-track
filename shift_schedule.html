@@ -84,91 +84,86 @@ h2 {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>
-  const employees = JSON.parse(localStorage.getItem('employees') || '[]');
-  const dayShiftsModal = new bootstrap.Modal(document.getElementById('dayShiftsModal'));
+const employees = JSON.parse(localStorage.getItem('employees') || '[]');
+const dayShiftsModal = new bootstrap.Modal(document.getElementById('dayShiftsModal'));
+let allShifts = [];
 
-  // Собираем все смены всех сотрудников в формат для календаря
-  let allShifts = [];
+employees.forEach(emp => {
+  (emp.shifts || []).forEach(shift => {
+    allShifts.push({
+      id: `${emp.id}_${shift.date}_${shift.start}_${shift.end}`,
+      employeeId: emp.id,
+      employeeName: emp.name,
+      title: `${emp.name}: ${shift.start}–${shift.end}`,
+      date: shift.date,
+      start: shift.start,
+      end: shift.end
+    });
+  });
+});
+
+const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+  initialView: 'dayGridMonth',
+  height: 700,
+  events: allShifts.map(s => ({ title: s.title, start: s.date, id: s.id })),
+  dateClick(info) {
+    showShiftsForDay(info.dateStr);
+  }
+});
+
+calendar.render();
+
+function showShiftsForDay(dateStr) {
+  document.getElementById('modalDateDisplay').textContent = dateStr;
+  const shiftsForDay = allShifts.filter(s => s.date === dateStr);
+  const container = document.getElementById('dayShiftsList');
+
+  if (shiftsForDay.length === 0) {
+    container.innerHTML = '<p>Смены не назначены.</p>';
+    dayShiftsModal.show();
+    return;
+  }
+
+  container.innerHTML = '<ul class="list-group">' + shiftsForDay.map(s => `
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span><strong>${s.employeeName}</strong>: ${s.start} – ${s.end}</span>
+      <button class="btn btn-danger btn-sm" onclick="deleteShift('${s.employeeId}', '${s.date}', '${s.start}', '${s.end}')">Удалить</button>
+    </li>
+  `).join('') + '</ul>';
+
+  dayShiftsModal.show();
+}
+
+function deleteShift(employeeId, date, start, end) {
+  if (!confirm('Удалить эту смену?')) return;
+  const empIndex = employees.findIndex(e => e.id === employeeId);
+  if (empIndex === -1) return;
+
+  const emp = employees[empIndex];
+  emp.shifts = (emp.shifts || []).filter(s => !(s.date === date && s.start === start && s.end === end));
+  employees[empIndex] = emp;
+
+  localStorage.setItem('employees', JSON.stringify(employees));
+
+  allShifts = [];
   employees.forEach(emp => {
     (emp.shifts || []).forEach(shift => {
       allShifts.push({
-        id: emp.id + '_' + shift.date,
+        id: `${emp.id}_${shift.date}_${shift.start}_${shift.end}`,
         employeeId: emp.id,
         employeeName: emp.name,
-        title: `${emp.name}: ${shift.title}`,
-        date: shift.date
+        title: `${emp.name}: ${shift.start}–${shift.end}`,
+        date: shift.date,
+        start: shift.start,
+        end: shift.end
       });
     });
   });
 
-  const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-    initialView: 'dayGridMonth',
-    height: 700,
-    events: allShifts.map(s => ({ title: s.title, start: s.date, id: s.id })),
-
-    dateClick(info) {
-      showShiftsForDay(info.dateStr);
-    }
-  });
-
-  
-  calendar.render();
-
-  function showShiftsForDay(dateStr) {
-    document.getElementById('modalDateDisplay').textContent = dateStr;
-
-    // Находим смены на выбранную дату
-    const shiftsForDay = allShifts.filter(s => s.date === dateStr);
-    const container = document.getElementById('dayShiftsList');
-
-    if (shiftsForDay.length === 0) {
-      container.innerHTML = '<p>Смены не назначены.</p>';
-      dayShiftsModal.show();
-      return;
-    }
-
-    container.innerHTML = '<ul class="list-group">' + shiftsForDay.map(s => `
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <span>${s.employeeName}: ${s.title.replace(`${s.employeeName}: `, '')}</span>
-        <button class="btn btn-danger btn-sm" onclick="deleteShift('${s.employeeId}', '${s.date}')">Удалить</button>
-      </li>
-    `).join('') + '</ul>';
-
-    dayShiftsModal.show();
-  }
-
-  function deleteShift(employeeId, date) {
-    if (!confirm('Удалить эту смену?')) return;
-
-    const empIndex = employees.findIndex(e => e.id === employeeId);
-    if (empIndex === -1) return;
-
-    const emp = employees[empIndex];
-    emp.shifts = (emp.shifts || []).filter(s => s.date !== date);
-    employees[empIndex] = emp;
-
-    localStorage.setItem('employees', JSON.stringify(employees));
-
-    // Обновляем allShifts и календарь
-    allShifts = [];
-    employees.forEach(emp => {
-      (emp.shifts || []).forEach(shift => {
-        allShifts.push({
-          id: emp.id + '_' + shift.date,
-          employeeId: emp.id,
-          employeeName: emp.name,
-          title: `${emp.name}: ${shift.title}`,
-          date: shift.date
-        });
-      });
-    });
-
-    calendar.removeAllEvents();
-    calendar.addEventSource(allShifts.map(s => ({ title: s.title, start: s.date, id: s.id })));
-
-    dayShiftsModal.hide();
-  }
+  calendar.removeAllEvents();
+  calendar.addEventSource(allShifts.map(s => ({ title: s.title, start: s.date, id: s.id })));
+  dayShiftsModal.hide();
+}
 </script>
 </body>
 </html>
-
