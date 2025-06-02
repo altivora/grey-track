@@ -5,43 +5,132 @@
   <title>Админка — Управление сотрудниками</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-    /* Немного стилей для календаря */
-    #calendar {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .day {
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      min-height: 100px;
-      cursor: pointer;
-      background: #fff;
-      user-select: none;
-    }
-    .day:hover {
-      background: #e9ecef;
-    }
-    .day strong {
-      font-weight: 600;
-    }
-    body {
+   /* Базовые стили для календаря */
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-top: 20px;
+  user-select: none;
+}
+
+.day {
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  min-height: 80px;
+  cursor: pointer;
+  background: #fff;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.day strong {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* Таблица сотрудников - делаем горизонтальную прокрутку на маленьких экранах */
+#employeesTable {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+#employeesTable table {
+  min-width: 600px; /* минимальная ширина таблицы */
+}
+
+/* Кнопки и шрифты уменьшаем */
+.btn {
+  font-size: 0.9rem;
+  padding: 6px 10px;
+}
+
+/* Стили для body и других элементов */
+body {
   background-image: url(image/1.png);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
+  padding: 1rem;
+  font-size: 14px;
 }
+
+h2, h3 {
+  color: white;
+  font-size: 1.5rem;
+}
+
+.profile p, .profile h2 {
+  color: white;
+  font-size: 1rem;
+}
+
+.profile img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* Навигация */
 .navbar-brand img {
-    border-radius: 10px;
+  border-radius: 10px;
+  width: 50px !important;
+  height: auto;
 }
-.profile p {
-    color: white;
+
+.navbar-nav .btn {
+  font-size: 0.85rem;
+  padding: 6px 8px;
 }
-h2 {
-    color: white;
+
+/* Модальное окно — немного адаптируем */
+.modal-dialog {
+  max-width: 90vw;
 }
+
+.modal-content {
+  font-size: 0.9rem;
+}
+
+/* Медиа-запросы для маленьких экранов */
+@media (max-width: 576px) {
+  /* Календарь делаем чуть меньше */
+  #calendar {
+    gap: 5px;
+  }
+
+  .day {
+    min-height: 60px;
+    font-size: 0.8rem;
+    padding: 4px;
+  }
+
+  h2, h3 {
+    font-size: 1.2rem;
+  }
+
+  .profile p, .profile h2 {
+    font-size: 0.9rem;
+  }
+
+  /* Уменьшаем кнопки в навбаре */
+  .navbar-nav .btn {
+    font-size: 0.75rem;
+    padding: 4px 6px;
+  }
+
+  /* Таблица - всегда с прокруткой */
+  #employeesTable {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
 
   </style>
 </head>
