@@ -6,11 +6,22 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
   <style>
-    body {
-  background-image: url(image/1.png);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1a1a2e);
+    background-size: 400% 400%;
+    animation: darkGradient 15s ease infinite;
+    font-family: sans-serif;
+    color: white;
+  }
+
+  @keyframes darkGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  
 }
 .navbar-brand img {
     border-radius: 10px;
@@ -23,6 +34,12 @@
 }
 h2 {
     color: white;
+}
+#dayShiftsList {
+  color: black;
+}
+#dayShiftsModalLabel {
+  color: black;
 }
 
   </style>
@@ -44,14 +61,11 @@ h2 {
           <li class="nav-item">
             <a href="shift_schedule.html" class="btn btn-light border-3 me-3" role="button">Moje směny</a>
           </li>
-          <li class="nav-item">
-            <a href="my_team.html" class="btn btn-light border-3"  role="button">Můj tým</a>
-          </li>
         </ul>
 
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <button id="logoutBtn" class="btn btn-danger" type="button">Выйти</button>
+            <button id="logoutBtn" class="btn btn-danger" type="button">Odhlasit se</button>
           </li>
         </ul>
       </div>
@@ -59,7 +73,7 @@ h2 {
   </nav>
 
 <div class="container">
-  <h2>Управление сменами</h2>
+  <h2>Správa směn</h2>
   <div id="calendar"></div>
 </div>
 
@@ -68,14 +82,14 @@ h2 {
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="dayShiftsModalLabel">Смены на <span id="modalDateDisplay"></span></h5>
+        <h5 class="modal-title" id="dayShiftsModalLabel">Směny na <span id="modalDateDisplay"></span></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <div class="modal-body" id="dayShiftsList">
         <!-- Список смен с кнопками удаления -->
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zavřit</button>
       </div>
     </div>
   </div>
@@ -84,6 +98,12 @@ h2 {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>
+      // Обработчик кнопки "Выйти"
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('user');
+      localStorage.removeItem('role');
+      window.location.href = 'authorization.html';
+    });
 const employees = JSON.parse(localStorage.getItem('employees') || '[]');
 const dayShiftsModal = new bootstrap.Modal(document.getElementById('dayShiftsModal'));
 let allShifts = [];
@@ -119,7 +139,7 @@ function showShiftsForDay(dateStr) {
   const container = document.getElementById('dayShiftsList');
 
   if (shiftsForDay.length === 0) {
-    container.innerHTML = '<p>Смены не назначены.</p>';
+    container.innerHTML = '<p>Směny nejsou přiřazeny.</p>';
     dayShiftsModal.show();
     return;
   }
@@ -167,3 +187,4 @@ function deleteShift(employeeId, date, start, end) {
 </script>
 </body>
 </html>
+
