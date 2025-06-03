@@ -203,39 +203,51 @@
 
     calendar.render();
 
-    function showAddShiftModal(dateStr) {
-      document.getElementById('modalDateText').textContent = `Вы выбрали: ${dateStr}`;
-      document.getElementById('startTime').value = '';
-      document.getElementById('endTime').value = '';
-      hoursModal.show();
-    }
+    const MAX_EMPLOYEES_PER_DAY = 5; // максимум сотрудников на одну дату
 
-    document.getElementById('saveHoursBtn').addEventListener('click', () => {
-      const start = document.getElementById('startTime').value;
-      const end = document.getElementById('endTime').value;
+function showAddShiftModal(dateStr) {
+  document.getElementById('modalDateText').textContent = `Вы выбрали: ${dateStr}`;
+  document.getElementById('startTime').value = '';
+  document.getElementById('endTime').value = '';
+  selectedDate = dateStr; // обязательно сохраняем выбранную дату
+  hoursModal.show();
+}
 
-      if (!start || !end || start >= end) {
-        alert('Укажите корректное время начала и окончания смены.');
-        return;
-      }
+document.getElementById('saveHoursBtn').addEventListener('click', () => {
+  const start = document.getElementById('startTime').value;
+  const end = document.getElementById('endTime').value;
 
-      const shiftTitle = `Смена (${start}–${end})`;
+  if (!start || !end || start >= end) {
+    alert('Укажите корректное время начала и окончания смены.');
+    return;
+  }
 
-      // Добавляем смену
-      emp.shifts.push({ date: selectedDate, start, end });
+  // Проверка: есть ли уже слишком много сотрудников на выбранную дату
+  const allEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
+  const alreadyAssignedCount = allEmployees.reduce((count, employee) => {
+    return count + ((employee.shifts || []).some(shift => shift.date === selectedDate) ? 1 : 0);
+  }, 0);
 
-      updateEmployeeData();
+  if (alreadyAssignedCount >= MAX_EMPLOYEES_PER_DAY) {
+    alert('На этот день уже записано максимальное количество сотрудников.');
+    return;
+  }
 
-      // Добавляем в календарь новое событие
-      calendar.addEvent({
-        title: shiftTitle,
-        start: selectedDate
-      });
+  const shiftTitle = `Смена (${start}–${end})`;
 
-      hoursModal.hide();
+  // Добавляем смену сотруднику
+  emp.shifts.push({ date: selectedDate, start, end, title: shiftTitle });
 
-      showMessage('Смена успешно добавлена!');
-    });
+  updateEmployeeData();
+
+  calendar.addEvent({
+    title: shiftTitle,
+    start: selectedDate
+  });
+
+  hoursModal.hide();
+  showMessage('Смена успешно добавлена!');
+});
 
     document.getElementById('addShiftBtn').addEventListener('click', () => {
       // Добавляем смену на текущий день с 9:00 до 17:00 (пример)
