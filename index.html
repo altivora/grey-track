@@ -6,8 +6,26 @@
   <title>Главная страница</title>
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
+    rel="stylesheet"/>
+    <style>
+      body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1a1a2e);
+    background-size: 400% 400%;
+    animation: darkGradient 15s ease infinite;
+    font-family: sans-serif;
+    color: white;
+  }
+
+  @keyframes darkGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  
+}
+    </style>
 </head>
 <body>
   <script>
@@ -22,7 +40,7 @@
 
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="index.html">Navbar</a>
+      <a class="navbar-brand" href="index.html">Logo</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -43,24 +61,11 @@
               aria-current="page"
               href="#"
               id="accountLink"
-              >My account</a
+              >Muy učet</a
             >
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="shift_schedule.html">Shift schedule</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="my_team.html">My team</a>
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link disabled"
-              href="#"
-              tabindex="-1"
-              aria-disabled="true"
-              >Disabled</a
-            >
-          </li>
+
+        
         </ul>
       </div>
     </div>
