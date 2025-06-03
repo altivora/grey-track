@@ -204,7 +204,9 @@
         acc + ((e.shifts || []).some(s => s.date === selectedDate) ? 1 : 0), 0);
 
       if (count >= MAX_EMPLOYEES_PER_DAY) {
-        alert(`На ${selectedDate} уже записано ${count} сотрудника(ов).`);
+        alert(`Na ${selectedDate} už máme 
+${count} zaměstnance. Takže já dneska zůstávám doma.
+Navrhuju se pobavit o nějakém „vražedném“ plánu — samozřejmě jen žertuju!`);
         return;
       }
 
