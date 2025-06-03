@@ -7,14 +7,23 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
   <style>
-    body {
-      background-image: url(image/1.png);
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: center;
-      min-height: 100vh;
-      color: white;
-    }
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364, #1a1a2e);
+    background-size: 400% 400%;
+    animation: darkGradient 15s ease infinite;
+    font-family: sans-serif;
+    color: white;
+  }
+
+  @keyframes darkGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  
+}
     .navbar-brand img {
       border-radius: 10px;
       max-height: 50px;
@@ -24,24 +33,36 @@
       border-radius: 12px;
       color: white;
     }
-    .fc-daygrid-day-number,
+    .fc-daygrid-day-number {
+      color: white !important;
+    }
     .fc-col-header-cell-cushion {
       color: white !important;
     }
     h2, h4, p {
       color: white;
     }
+    /* Отступы и размеры для мобильных */
     @media (max-width: 576px) {
-      body { padding: 1rem !important; }
-      .navbar-brand img { max-height: 40px; }
-      h2 { font-size: 1.5rem; }
-      h4 { font-size: 1.2rem; }
+      body {
+        padding: 1rem !important;
+      }
+      .navbar-brand img {
+        max-height: 40px;
+      }
+      h2 {
+        font-size: 1.5rem;
+      }
+      h4 {
+        font-size: 1.2rem;
+      }
       #empPhoto {
         max-width: 100%;
         height: auto;
         margin-bottom: 1rem;
         border-radius: 10px;
       }
+      /* Вертикальное расположение в карточке */
       .employee-info-row {
         flex-direction: column !important;
         align-items: center !important;
@@ -55,7 +76,11 @@
         width: 100%;
         margin-top: 1rem;
       }
+      .card p, .card h4 {
+        margin-bottom: 0.5rem;
+      }
     }
+    /* На больших экранах задаём высоту календаря */
     @media (min-width: 577px) {
       #calendar {
         height: 600px !important;
@@ -68,18 +93,20 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-transparent">
     <div class="container-fluid">
       <a class="navbar-brand" href="index.html"><img src="image/2023-04-14.webp" alt="Логотип"></a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
+        <ul class="navbar-nav">
           <li class="nav-item">
             <a href="dashboard.html" class="btn btn-light border-3 me-3" role="button">Můj účet</a>
           </li>
         </ul>
+
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <button id="logoutBtn" class="btn btn-danger">Выйти</button>
+            <button id="logoutBtn" class="btn btn-danger" type="button">Odhlasit se</button>
           </li>
         </ul>
       </div>
@@ -88,7 +115,7 @@
 
   <div class="container">
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
-      <h2>Личный кабинет</h2>
+      <h2>Osobní účet</h2>
       <button id="logoutBtn" class="btn btn-outline-danger mt-2 mt-sm-0">Выйти</button>
     </div>
 
@@ -98,12 +125,11 @@
           <img id="empPhoto" src="https://via.placeholder.com/150" alt="Фото сотрудника" class="img-thumbnail">
         </div>
         <div class="flex-grow-1">
-          <h4 id="empName">Имя сотрудника</h4>
-          <p><strong>Должность:</strong> <span id="empPosition"></span></p>
-          <p><strong>Отработанные часы:</strong> <span id="empHours"></span></p>
-          <h4 class="mt-4">Мои смены</h4>
+          <h4 id="empName">Jmeno</h4>
+          <p><strong>Pozice:</strong> <span id="empPosition"></span></p>
+          <p><strong>Odpracované hodiny:</strong> <span id="empHours"></span></p>
+          <h4 class="mt-4">Mé směny</h4>
           <div id="calendar"></div>
-          <button id="addShiftBtn" class="btn btn-primary mt-3">Записаться на смену</button>
         </div>
       </div>
     </div>
@@ -111,33 +137,39 @@
     <div id="message" class="alert alert-success mt-4 d-none"></div>
   </div>
 
-  <!-- Модальное окно -->
-  <div class="modal fade" id="hoursModal" tabindex="-1">
+  <!-- Модальное окно для добавления смены -->
+  <div class="modal fade" id="hoursModal" tabindex="-1" aria-labelledby="hoursModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content bg-dark text-white">
         <div class="modal-header">
-          <h5 class="modal-title">Добавление смены</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <h5 class="modal-title" id="hoursModalLabel">Přidání směny</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
         </div>
         <div class="modal-body">
           <p id="modalDateText"></p>
-          <label for="startTime">Начало смены:</label>
-          <input type="time" id="startTime" class="form-control mb-2" required>
-          <label for="endTime">Окончание смены:</label>
+          <label for="startTime" class="form-label">Začátek směny:</label>
+          <input type="time" id="startTime" class="form-control mb-3" required>
+          <label for="endTime" class="form-label">Konec směny:</label>
           <input type="time" id="endTime" class="form-control" required>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button class="btn btn-primary" id="saveHoursBtn">Сохранить</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+          <button type="button" class="btn btn-primary" id="saveHoursBtn">Uložit</button>
         </div>
       </div>
     </div>
   </div>
+  
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
   <script>
-    const MAX_EMPLOYEES_PER_DAY = 3;
+          // Обработчик кнопки "Выйти"
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('user');
+      localStorage.removeItem('role');
+      window.location.href = 'authorization.html';
+    });
     const userId = localStorage.getItem('user');
     const employees = JSON.parse(localStorage.getItem('employees') || '[]');
     const emp = employees.find(e => e.id === userId);
@@ -168,23 +200,26 @@
       initialView: 'dayGridMonth',
       height: window.innerWidth < 576 ? 400 : 600,
       selectable: true,
+      // При выделении (drag) — открывать окно добавления
       select(info) {
-        showAddShiftModal(info.startStr);
+        selectedDate = info.startStr;
+        showAddShiftModal(selectedDate);
       },
+      // При клике на день — тоже открывать окно добавления
       dateClick(info) {
-        showAddShiftModal(info.dateStr);
+        selectedDate = info.dateStr;
+        showAddShiftModal(selectedDate);
       },
-      events: emp.shifts.map(s => ({
-        title: `Смена (${s.start}–${s.end})`,
-        start: s.date
+      events: emp.shifts.map(shift => ({
+        title: `Смена (${shift.start}–${shift.end})`,
+        start: shift.date
       }))
     });
 
     calendar.render();
 
     function showAddShiftModal(dateStr) {
-      selectedDate = dateStr;
-      document.getElementById('modalDateText').textContent = `Вы выбрали: ${dateStr}`;
+      document.getElementById('modalDateText').textContent = `Vybrali jste: ${dateStr}`;
       document.getElementById('startTime').value = '';
       document.getElementById('endTime').value = '';
       hoursModal.show();
@@ -195,45 +230,47 @@
       const end = document.getElementById('endTime').value;
 
       if (!start || !end || start >= end) {
-        alert('Укажите корректное время начала и окончания смены.');
+        alert('Uveďte správný čas začátku a konce směny.');
         return;
       }
 
-      const allEmployees = JSON.parse(localStorage.getItem('employees') || '[]');
-      const count = allEmployees.reduce((acc, e) =>
-        acc + ((e.shifts || []).some(s => s.date === selectedDate) ? 1 : 0), 0);
+      const shiftTitle = `Směna (${start}–${end})`;
 
-      if (count >= MAX_EMPLOYEES_PER_DAY) {
-        alert(`Na ${selectedDate} už máme 
-${count} zaměstnance. Takže já dneska zůstávám doma.
-Navrhuju se pobavit o nějakém „vražedném“ plánu — samozřejmě jen žertuju!`);
-        return;
-      }
-
-      const title = `Смена (${start}–${end})`;
-      emp.shifts.push({ date: selectedDate, start, end, title });
+      // Добавляем смену
+      emp.shifts.push({ date: selectedDate, start, end });
 
       updateEmployeeData();
 
-      calendar.addEvent({ title, start: selectedDate });
+      // Добавляем в календарь новое событие
+      calendar.addEvent({
+        title: shiftTitle,
+        start: selectedDate
+      });
+
       hoursModal.hide();
-      showMessage('Смена успешно добавлена!');
+
+      showMessage('Směna byla úspěšně přidána!');
     });
 
     document.getElementById('addShiftBtn').addEventListener('click', () => {
-      const today = new Date().toISOString().split('T')[0];
-      showAddShiftModal(today);
+      // Добавляем смену на текущий день с 9:00 до 17:00 (пример)
+      const todayStr = new Date().toISOString().split('T')[0];
+      selectedDate = todayStr;
+      showAddShiftModal(todayStr);
       document.getElementById('startTime').value = '09:00';
       document.getElementById('endTime').value = '17:00';
     });
 
     function showMessage(text) {
-      const el = document.getElementById('message');
-      el.textContent = text;
-      el.classList.remove('d-none');
-      setTimeout(() => el.classList.add('d-none'), 3000);
+      const messageEl = document.getElementById('message');
+      messageEl.textContent = text;
+      messageEl.classList.remove('d-none');
+      setTimeout(() => {
+        messageEl.classList.add('d-none');
+      }, 4000);
     }
 
+    // Кнопки выхода
     document.querySelectorAll('#logoutBtn').forEach(btn => {
       btn.addEventListener('click', () => {
         localStorage.removeItem('user');
@@ -242,4 +279,4 @@ Navrhuju se pobavit o nějakém „vražedném“ plánu — samozřejmě jen ž
     });
   </script>
 </body>
-</
+</html>
